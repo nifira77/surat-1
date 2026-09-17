@@ -37,6 +37,28 @@
         .hidden-view {
             display: none !important;
         }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background-color: white;
+                padding: 10mm;
+            }
+            .no-print {
+                display: none !important;
+            }
+            /* Reset background & shadow untuk cetak */
+            .bg-gray-50 { background-color: white !important; }
+        }
     </style>
 </head>
 <body class="text-gray-800 overflow-hidden h-screen flex">
@@ -301,13 +323,95 @@
                 </div>
             </div>
 
-            <!-- Arsip View (Placeholder) -->
-            <div id="view-arsip" class="hidden-view h-full flex flex-col items-center justify-center text-center p-8">
-                <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-4xl mb-4">
-                    <i class="fas fa-folder-open"></i>
+            <div id="view-arsip" class="hidden-view space-y-6">
+                <!-- Filter Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 filter-section no-print">
+                    <h3 class="font-semibold text-gray-800 mb-4">Filter Laporan Buku Agenda</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Dari Tanggal</label>
+                            <input type="date" id="filter-start" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Sampai Tanggal</label>
+                            <input type="date" id="filter-end" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Jenis Surat</label>
+                            <select id="filter-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                                <option value="semua">Semua Surat</option>
+                                <option value="masuk">Surat Masuk</option>
+                                <option value="keluar">Surat Keluar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button onclick="generateReport()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-sync-alt"></i> Tampilkan Laporan
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800">Sistem Pengarsipan Digital</h3>
-                <p class="text-gray-500 max-w-md mt-2">Fitur ini sedang dalam pengembangan. Nantinya Anda dapat mengelola retensi arsip, klasifikasi, dan generate laporan rekapitulasi buku agenda di sini.</p>
+
+                <!-- Print Area / Report Preview -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 no-print">
+                        <h3 class="font-semibold text-gray-800">Preview Dokumen</h3>
+                        <button onclick="window.print()" id="btn-print" class="hidden bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fas fa-print"></i> Cetak Dokumen
+                        </button>
+                    </div>
+                    
+                    <!-- Area spesifik yang akan dicetak -->
+                    <div id="print-area" class="p-8 hidden">
+                        <!-- Kop Surat -->
+                        <div class="text-center mb-6 border-b-4 border-double border-black pb-4">
+                            <h2 class="text-xl font-bold uppercase tracking-wide">Pemerintah Kabupaten Tulang Bawang Barat</h2>
+                            <h1 class="text-2xl font-bold uppercase tracking-wide">Dinas Pendidikan</h1>
+                            <h1 class="text-3xl font-bold uppercase tracking-wider text-blue-900 print:text-black">SMP Negeri 14 Tulang Bawang Barat</h1>
+                            <p class="text-sm mt-1">Alamat: Jl. Raya Tirta Makmur, Kec. Tulang Bawang Tengah, Kab. Tulang Bawang Barat</p>
+                        </div>
+
+                        <!-- Judul Laporan -->
+                        <div class="text-center mb-6">
+                            <h3 class="text-lg font-bold uppercase underline" id="report-title">Buku Agenda Surat</h3>
+                            <p class="text-sm" id="report-period">Periode: -</p>
+                        </div>
+
+                        <!-- Tabel Laporan -->
+                        <table class="w-full text-left border-collapse border border-gray-800">
+                            <thead>
+                                <tr class="bg-gray-100 text-black text-xs uppercase">
+                                    <th class="border border-gray-800 px-3 py-2 font-bold text-center w-10">No</th>
+                                    <th class="border border-gray-800 px-3 py-2 font-bold w-24">Tanggal</th>
+                                    <th class="border border-gray-800 px-3 py-2 font-bold w-24">No. Agenda</th>
+                                    <th class="border border-gray-800 px-3 py-2 font-bold">Asal / Tujuan</th>
+                                    <th class="border border-gray-800 px-3 py-2 font-bold w-32">Nomor Surat</th>
+                                    <th class="border border-gray-800 px-3 py-2 font-bold">Isi Ringkas / Perihal</th>
+                                    <th class="border border-gray-800 px-3 py-2 font-bold w-20 text-center">Ket</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-black" id="report-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        
+                        <!-- Tanda Tangan Cetak -->
+                        <div class="mt-12 flex justify-end print:block">
+                            <div class="text-center w-64 float-right">
+                                <p class="mb-16">Tulang Bawang Barat, <span id="print-date"></span><br>Kepala Tata Usaha</p>
+                                <p class="font-bold underline">_________________________</p>
+                                <p>NIP. ........................</p>
+                            </div>
+                            <div class="clear-both"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div id="report-empty-state" class="text-center p-12 no-print">
+                        <i class="fas fa-file-invoice text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">Pilih rentang tanggal dan klik "Tampilkan Laporan" untuk memuat pratinjau dokumen.</p>
+                    </div>
+                </div>
             </div>
 
         </main>
@@ -644,6 +748,88 @@
             document.getElementById('sm-agenda').value = `SM-0${currentNum + 1}`;
             
             showToast('Surat Masuk berhasil diregistrasi!');
+        }
+
+        function generateReport() {
+            const startDate = document.getElementById('filter-start').value;
+            const endDate = document.getElementById('filter-end').value;
+            const type = document.getElementById('filter-type').value;
+
+            if (!startDate || !endDate) {
+                alert("Mohon lengkapi 'Dari Tanggal' dan 'Sampai Tanggal' terlebih dahulu.");
+                return;
+            }
+
+            // Gabungkan Data
+            let reportData = [];
+            
+            if (type === 'semua' || type === 'masuk') {
+                const masuk = dataSuratMasuk.map(d => ({
+                    id: d.id, no_surat: d.no_surat, tgl: d.tgl, perihal: d.perihal, entity: d.pengirim, type: 'Masuk'
+                }));
+                reportData = reportData.concat(masuk);
+            }
+            
+            if (type === 'semua' || type === 'keluar') {
+                const keluar = dataSuratKeluar.map(d => ({
+                    id: '-', // Surat keluar biasa tidak pakai No. Agenda Masuk
+                    no_surat: d.no_surat, tgl: d.tgl, perihal: d.perihal, entity: d.tujuan, type: 'Keluar'
+                }));
+                reportData = reportData.concat(keluar);
+            }
+
+            // Filter Berdasarkan Tanggal
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59); // Cakup hingga akhir hari
+
+            const filteredData = reportData.filter(item => {
+                const itemDate = new Date(item.tgl);
+                return itemDate >= start && itemDate <= end;
+            });
+
+            // Urutkan dari terlama ke terbaru
+            filteredData.sort((a, b) => new Date(a.tgl) - new Date(b.tgl));
+
+            // Render Tabel Laporan
+            const tbody = document.getElementById('report-table-body');
+            tbody.innerHTML = '';
+            
+            if(filteredData.length === 0) {
+                 tbody.innerHTML = `<tr><td colspan="7" class="border border-gray-800 px-3 py-4 text-center italic text-gray-500">Tidak ada data surat pada rentang tanggal tersebut.</td></tr>`;
+            } else {
+                filteredData.forEach((item, index) => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="border border-gray-800 px-3 py-2 text-center">${index + 1}</td>
+                            <td class="border border-gray-800 px-3 py-2 whitespace-nowrap">${formatDate(item.tgl)}</td>
+                            <td class="border border-gray-800 px-3 py-2 text-center">${item.id}</td>
+                            <td class="border border-gray-800 px-3 py-2">${item.entity}</td>
+                            <td class="border border-gray-800 px-3 py-2 text-xs">${item.no_surat}</td>
+                            <td class="border border-gray-800 px-3 py-2">${item.perihal}</td>
+                            <td class="border border-gray-800 px-3 py-2 text-center font-semibold">
+                                ${item.type === 'Masuk' ? 'M' : 'K'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Perbarui Judul & Tanggal Cetak
+            let titleType = 'MASUK & KELUAR';
+            if(type === 'masuk') titleType = 'MASUK';
+            if(type === 'keluar') titleType = 'KELUAR';
+            
+            document.getElementById('report-title').innerText = `BUKU AGENDA SURAT ${titleType}`;
+            document.getElementById('report-period').innerText = `Periode: ${formatDate(startDate)} s.d ${formatDate(endDate)}`;
+            
+            // Tanggal hari ini untuk kolom Tanda Tangan
+            document.getElementById('print-date').innerText = formatDate(new Date().toISOString());
+
+            // Ubah Visibilitas UI (Tampilkan report, sembunyikan placeholder)
+            document.getElementById('report-empty-state').classList.add('hidden');
+            document.getElementById('print-area').classList.remove('hidden');
+            document.getElementById('btn-print').classList.remove('hidden');
         }
 
         // Initialize App
