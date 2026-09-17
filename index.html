@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aplikasi Surat Menyurat</title>
+  <style>
+    :root{
+      --bg:#eef3f9;
+      --panel:rgba(255,255,255,.94);
+      --text:#172033;
+      --muted:#718096;
+      --primary:#4f46e5;
+      --primary-dark:#4338ca;
+      --success:#16a34a;
+      --warning:#d97706;
+      --danger:#dc2626;
+      --border:#e6eaf0;
+      --sidebar:#101828;
+      --sidebar2:#182338;
+      --shadow:0 18px 45px rgba(31,41,55,.08);
+      --radius:20px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(99,102,241,.10), transparent 28%),
+        radial-gradient(circle at 100% 10%, rgba(14,165,233,.08), transparent 25%),
+        var(--bg);
+      color:var(--text);
+    }
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{
+      background:linear-gradient(180deg,var(--sidebar),var(--sidebar2));
+      color:#fff;
+      padding:26px 18px;
+      position:sticky;top:0;height:100vh;
+      box-shadow:10px 0 35px rgba(15,23,42,.12);
+    }
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:28px;padding:0 8px}
+    .brand-logo{
+      width:48px;height:48px;border-radius:16px;
+      background:linear-gradient(135deg,#6366f1,#06b6d4);
+      display:grid;place-items:center;font-size:23px;
+      box-shadow:0 10px 26px rgba(79,70,229,.35)
+    }
+    .brand h1{font-size:17px;margin:0}
+    .brand small{color:#94a3b8}
+    .nav{display:flex;flex-direction:column;gap:7px}
+    .nav button{
+      width:100%;border:0;background:transparent;color:#cbd5e1;text-align:left;
+      padding:12px 14px;border-radius:12px;display:flex;align-items:center;gap:10px
+    }
+    .nav button:hover,.nav button.active{
+      background:linear-gradient(90deg,rgba(99,102,241,.28),rgba(6,182,212,.12));
+      color:#fff;
+      box-shadow:inset 3px 0 0 #818cf8;
+    }
+    .sidebar-footer{
+      position:absolute;left:18px;right:18px;bottom:20px;border-top:1px solid #334155;padding-top:16px
+    }
+    .user{display:flex;align-items:center;gap:10px}
+    .avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#334155;font-weight:700}
+    .user small{color:#94a3b8}
+
+    .main{padding:30px;max-width:1800px;width:100%;margin:0 auto}
+    .topbar{
+      display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:20px
+    }
+    .topbar h2{margin:0;font-size:30px;letter-spacing:-.8px}
+    .topbar p{margin:5px 0 0;color:var(--muted)}
+    .top-actions{display:flex;gap:10px;align-items:center}
+    .btn{
+      border:0;border-radius:12px;padding:11px 16px;font-weight:700;
+      display:inline-flex;align-items:center;gap:8px;justify-content:center;
+      transition:.2s ease;box-shadow:0 5px 12px rgba(15,23,42,.04)
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{
+      background:linear-gradient(135deg,#4f46e5,#6366f1);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(79,70,229,.22)
+    }
+    .btn-primary:hover{background:var(--primary-dark)}
+    .btn-light{background:#fff;border:1px solid var(--border);color:var(--text)}
+    .btn-danger{background:#fee2e2;color:#991b1b}
+    .btn-sm{padding:7px 10px;border-radius:9px;font-size:13px}
+
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+    .card{
+      background:var(--panel);
+      border:1px solid rgba(226,232,240,.9);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+    }
+    .stat{padding:22px;position:relative;overflow:hidden}
+    .stat:after{
+      content:"";position:absolute;width:90px;height:90px;border-radius:50%;
+      right:-28px;bottom:-35px;background:rgba(99,102,241,.06)
+    }
+    .stat-top{display:flex;justify-content:space-between;align-items:center}
+    .stat-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:#eff6ff;font-size:21px}
+    .stat strong{display:block;font-size:32px;margin-top:12px;letter-spacing:-1px}
+    .stat span{color:var(--muted);font-size:14px}
+
+    .content-card{padding:18px}
+    .toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    .filters{display:flex;gap:10px;flex-wrap:wrap}
+    .input,select,textarea{
+      border:1px solid var(--border);background:#fff;border-radius:12px;
+      padding:11px 13px;outline:none;transition:.2s
+    }
+    .input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #dbeafe}
+    .search{min-width:260px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:13px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{
+      font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+      background:#f8fafc;padding-top:15px;padding-bottom:15px
+    }
+    td{font-size:14px;transition:background .15s}
+    tbody tr:hover td{background:#fafbff}
+    .badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}
+    .badge-new{background:#dbeafe;color:#1d4ed8}
+    .badge-process{background:#fef3c7;color:#92400e}
+    .badge-done{background:#dcfce7;color:#166534}
+    .badge-draft{background:#f3f4f6;color:#4b5563}
+    .badge-sent{background:#e0e7ff;color:#3730a3}
+    .actions{display:flex;gap:6px;flex-wrap:wrap}
+    .empty{padding:40px;text-align:center;color:var(--muted)}
+    .hidden{display:none!important}
+
+    .section{display:none}
+    .section.active{display:block}
+
+    .modal{
+      position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;
+      padding:20px;z-index:100
+    }
+    .modal.show{display:flex}
+    .modal-box{width:min(760px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.25)}
+    .modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .modal-head h3{margin:0}
+    .modal-body{padding:20px}
+    .modal-foot{padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-group{display:flex;flex-direction:column;gap:7px}
+    .form-group.full{grid-column:1/-1}
+    label{font-size:13px;font-weight:700}
+    textarea{min-height:100px;resize:vertical}
+
+    .dashboard-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+    .activity{padding:18px}
+    .activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+    .activity-dot{width:10px;height:10px;margin-top:6px;border-radius:50%;background:var(--primary);flex:0 0 auto}
+    .activity small{color:var(--muted)}
+
+    .detail-list{display:grid;grid-template-columns:160px 1fr;gap:10px 16px;font-size:14px}
+    .detail-list .label{color:var(--muted)}
+
+    @media(max-width:1100px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .dashboard-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:800px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto}
+      .sidebar-footer{position:static;margin-top:20px}
+      .nav{display:grid;grid-template-columns:repeat(2,1fr)}
+      .main{padding:16px}
+      .topbar{align-items:flex-start;flex-direction:column}
+      .stats{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+      .detail-list{grid-template-columns:1fr}
+      table{display:block;overflow-x:auto;white-space:nowrap}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">✉️</div>
+      <div><h1>SMPN 14 Tulang Bawang Barat</h1><small>Administrasi Surat Digital</small></div>
+    </div>
+
+    <nav class="nav">
+      <button class="active" data-section="dashboard">🏠 Dashboard</button>
+      <button data-section="masuk">📥 Surat Masuk</button>
+      <button data-section="keluar">📤 Surat Keluar</button>
+      <button data-section="disposisi">📝 Disposisi</button>
+      <button data-section="arsip">🗂️ Arsip</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user">
+        <div class="avatar">AD</div>
+        <div><strong>Administrator</strong><br><small>admin@kantor.id</small></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSubtitle">Ringkasan aktivitas surat menyurat.</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-light" onclick="exportData()">⬇ Export Data</button>
+        <button class="btn btn-primary" onclick="openLetterModal()">＋ Tambah Surat</button>
+      </div>
+    </div>
+
+    <section id="dashboard" class="section active">
+      <div class="stats">
+        <div class="card stat"><div class="stat-top"><span>Surat Masuk</span><div class="stat-icon">📥</div></div><strong id="statMasuk">0</strong><span>Total surat masuk</span></div>
+        <div class="card stat"><div class="stat-top"><span>Surat Keluar</span><div class="stat-icon">📤</div></div><strong id="statKeluar">0</strong><span>Total surat keluar</span></div>
+        <div class="card stat"><div class="stat-top"><span>Perlu Diproses</span><div class="stat-icon">⏳</div></div><strong id="statProses">0</strong><span>Menunggu tindak lanjut</span></div>
+        <div class="card stat"><div class="stat-top"><span>Selesai</span><div class="stat-icon">✅</div></div><strong id="statSelesai">0</strong><span>Sudah selesai</span></div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card content-card">
+          <div class="toolbar"><h3 style="margin:0">Surat Terbaru</h3><button class="btn btn-light btn-sm" onclick="showSection('masuk')">Lihat Semua</button></div>
+          <div id="recentTable"></div>
+        </div>
+        <div class="card activity">
+          <h3 style="margin-top:0">Aktivitas Terbaru</h3>
+          <div id="activityList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="masuk" class="section">
+      <div class="card content-card">
+        <div class="toolbar">
+          <div class="filters">
+            <input id="searchMasuk" class="input search" placeholder="Cari nomor, pengirim, perihal..." oninput="renderMasuk()">
+            <select id="filterMasuk" onchange="renderMasuk()">
+              <option value="">Semua Status</option>
+              <option value="Baru">Baru</option>
+              <option value="Diproses">Diproses</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="openLetterModal('masuk')">＋ Surat Masuk</button>
+        </div>
+        <div id="tableMasuk"></div>
+      </div>
+    </section>
+
+    <section id="keluar" class="section">
+      <div class="card content-card">
+        <div class="toolbar">
+          <div class="filters">
+            <input id="searchKeluar" class="input search" placeholder="Cari nomor, tujuan, perihal..." oninput="renderKeluar()">
+            <select id="filterKeluar" onchange="renderKeluar()">
+              <option value="">Semua Status</option>
+              <option value="Draft">Draft</option>
+              <option value="Terkirim">Terkirim</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="openLetterModal('keluar')">＋ Surat Keluar</button>
+        </div>
+        <div id="tableKeluar"></div>
+      </div>
+    </section>
+
+    <section id="disposisi" class="section">
+      <div class="card content-card">
+        <div class="toolbar"><h3 style="margin:0">Daftar Disposisi</h3></div>
+        <div id="tableDisposisi"></div>
+      </div>
+    </section>
+
+    <section id="arsip" class="section">
+      <div class="card content-card">
+        <div class="toolbar">
+          <input id="searchArsip" class="input search" placeholder="Cari arsip..." oninput="renderArsip()">
+        </div>
+        <div id="tableArsip"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="letterModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="letterModalTitle">Tambah Surat</h3>
+      <button class="btn btn-light btn-sm" onclick="closeModal('letterModal')">✕</button>
+    </div>
+    <form id="letterForm" onsubmit="saveLetter(event)">
+      <div class="modal-body">
+        <input type="hidden" id="editId">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Jenis Surat</label>
+            <select id="jenis" required onchange="updatePartyLabel()">
+              <option value="masuk">Surat Masuk</option>
+              <option value="keluar">Surat Keluar</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nomor Surat</label>
+            <input class="input" id="nomor" required placeholder="Contoh: 001/ADM/IX/2026">
+          </div>
+          <div class="form-group">
+            <label>Tanggal Surat</label>
+            <input class="input" type="date" id="tanggal" required>
+          </div>
+          <div class="form-group">
+            <label id="partyLabel">Pengirim</label>
+            <input class="input" id="pihak" required placeholder="Nama instansi / pihak">
+          </div>
+          <div class="form-group full">
+            <label>Perihal</label>
+            <input class="input" id="perihal" required placeholder="Perihal surat">
+          </div>
+          <div class="form-group">
+            <label>Sifat Surat</label>
+            <select id="sifat">
+              <option>Biasa</option>
+              <option>Penting</option>
+              <option>Segera</option>
+              <option>Rahasia</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="status"></select>
+          </div>
+          <div class="form-group full">
+            <label>Keterangan</label>
+            <textarea id="keterangan" placeholder="Catatan tambahan..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-light" onclick="closeModal('letterModal')">Batal</button>
+        <button class="btn btn-primary" type="submit">Simpan Surat</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="detailModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Detail Surat</h3>
+      <button class="btn btn-light btn-sm" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div id="detailContent" class="modal-body"></div>
+  </div>
+</div>
+
+<div id="disposisiModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Buat Disposisi</h3>
+      <button class="btn btn-light btn-sm" onclick="closeModal('disposisiModal')">✕</button>
+    </div>
+    <form onsubmit="saveDisposisi(event)">
+      <div class="modal-body">
+        <input type="hidden" id="dispLetterId">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Ditujukan Kepada</label>
+            <input id="dispTujuan" class="input" required placeholder="Contoh: Kepala Bagian Umum">
+          </div>
+          <div class="form-group">
+            <label>Batas Waktu</label>
+            <input id="dispDeadline" class="input" type="date">
+          </div>
+          <div class="form-group full">
+            <label>Instruksi / Catatan</label>
+            <textarea id="dispCatatan" required placeholder="Isi instruksi disposisi"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-light" onclick="closeModal('disposisiModal')">Batal</button>
+        <button class="btn btn-primary" type="submit">Simpan Disposisi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const LS_LETTERS = 'surat_app_letters_v1';
+const LS_DISP = 'surat_app_disposisi_v1';
+const LS_ACTIVITY = 'surat_app_activity_v1';
+
+let letters = JSON.parse(localStorage.getItem(LS_LETTERS) || 'null') || [
+  {id:crypto.randomUUID(),jenis:'masuk',nomor:'001/SM/IX/2026',tanggal:'2026-09-15',pihak:'Dinas Pendidikan',perihal:'Undangan Rapat Koordinasi',sifat:'Penting',status:'Baru',keterangan:'Rapat koordinasi program kerja.'},
+  {id:crypto.randomUUID(),jenis:'masuk',nomor:'002/SM/IX/2026',tanggal:'2026-09-16',pihak:'PT Nusantara Jaya',perihal:'Penawaran Kerja Sama',sifat:'Biasa',status:'Diproses',keterangan:'Perlu ditindaklanjuti bagian kerja sama.'},
+  {id:crypto.randomUUID(),jenis:'keluar',nomor:'015/SK/IX/2026',tanggal:'2026-09-16',pihak:'Kecamatan Sukamaju',perihal:'Permohonan Data',sifat:'Biasa',status:'Terkirim',keterangan:'Telah dikirim melalui email resmi.'}
+];
+
+let disposisi = JSON.parse(localStorage.getItem(LS_DISP) || '[]');
+let activities = JSON.parse(localStorage.getItem(LS_ACTIVITY) || 'null') || [
+  {text:'Sistem aplikasi surat siap digunakan.',time:new Date().toISOString()}
+];
+
+function persist(){
+  localStorage.setItem(LS_LETTERS, JSON.stringify(letters));
+  localStorage.setItem(LS_DISP, JSON.stringify(disposisi));
+  localStorage.setItem(LS_ACTIVITY, JSON.stringify(activities));
+}
+
+function addActivity(text){
+  activities.unshift({text,time:new Date().toISOString()});
+  activities = activities.slice(0,20);
+  persist();
+}
+
+function showSection(id){
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.section===id));
+
+  const meta={
+    dashboard:['Dashboard','Ringkasan aktivitas surat menyurat.'],
+    masuk:['Surat Masuk','Kelola seluruh surat yang diterima.'],
+    keluar:['Surat Keluar','Kelola surat yang dibuat dan dikirim.'],
+    disposisi:['Disposisi','Pantau instruksi dan tindak lanjut surat.'],
+    arsip:['Arsip Surat','Daftar seluruh surat yang tersimpan.']
+  };
+  document.getElementById('pageTitle').textContent=meta[id][0];
+  document.getElementById('pageSubtitle').textContent=meta[id][1];
+
+  if(id==='masuk') renderMasuk();
+  if(id==='keluar') renderKeluar();
+  if(id==='disposisi') renderDisposisi();
+  if(id==='arsip') renderArsip();
+  if(id==='dashboard') renderDashboard();
+}
+
+document.querySelectorAll('.nav button').forEach(btn=>{
+  btn.addEventListener('click',()=>showSection(btn.dataset.section));
+});
+
+function badge(status){
+  const map={
+    'Baru':'badge-new','Diproses':'badge-process','Selesai':'badge-done',
+    'Draft':'badge-draft','Terkirim':'badge-sent'
+  };
+  return `<span class="badge ${map[status]||'badge-draft'}">${status}</span>`;
+}
+
+function formatDate(v){
+  if(!v) return '-';
+  return new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(v+'T00:00:00'));
+}
+
+function letterTable(data, type){
+  if(!data.length) return `<div class="empty">Belum ada data surat.</div>`;
+  return `<table>
+    <thead><tr>
+      <th>No.</th><th>Tanggal</th><th>${type==='masuk'?'Pengirim':'Tujuan'}</th><th>Perihal</th><th>Sifat</th><th>Status</th><th>Aksi</th>
+    </tr></thead>
+    <tbody>${data.map(x=>`
+      <tr>
+        <td><strong>${escapeHtml(x.nomor)}</strong></td>
+        <td>${formatDate(x.tanggal)}</td>
+        <td>${escapeHtml(x.pihak)}</td>
+        <td>${escapeHtml(x.perihal)}</td>
+        <td>${escapeHtml(x.sifat)}</td>
+        <td>${badge(x.status)}</td>
+        <td><div class="actions">
+          <button class="btn btn-light btn-sm" onclick="viewLetter('${x.id}')">Lihat</button>
+          <button class="btn btn-light btn-sm" onclick="editLetter('${x.id}')">Edit</button>
+          ${x.jenis==='masuk'?`<button class="btn btn-light btn-sm" onclick="openDisposisi('${x.id}')">Disposisi</button>`:''}
+          <button class="btn btn-danger btn-sm" onclick="deleteLetter('${x.id}')">Hapus</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function renderMasuk(){
+  const q=(document.getElementById('searchMasuk')?.value||'').toLowerCase();
+  const f=document.getElementById('filterMasuk')?.value||'';
+  const data=letters.filter(x=>x.jenis==='masuk')
+    .filter(x=>!f||x.status===f)
+    .filter(x=>(x.nomor+' '+x.pihak+' '+x.perihal).toLowerCase().includes(q))
+    .sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  document.getElementById('tableMasuk').innerHTML=letterTable(data,'masuk');
+}
+
+function renderKeluar(){
+  const q=(document.getElementById('searchKeluar')?.value||'').toLowerCase();
+  const f=document.getElementById('filterKeluar')?.value||'';
+  const data=letters.filter(x=>x.jenis==='keluar')
+    .filter(x=>!f||x.status===f)
+    .filter(x=>(x.nomor+' '+x.pihak+' '+x.perihal).toLowerCase().includes(q))
+    .sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  document.getElementById('tableKeluar').innerHTML=letterTable(data,'keluar');
+}
+
+function renderDashboard(){
+  document.getElementById('statMasuk').textContent=letters.filter(x=>x.jenis==='masuk').length;
+  document.getElementById('statKeluar').textContent=letters.filter(x=>x.jenis==='keluar').length;
+  document.getElementById('statProses').textContent=letters.filter(x=>['Baru','Diproses','Draft'].includes(x.status)).length;
+  document.getElementById('statSelesai').textContent=letters.filter(x=>['Selesai','Terkirim'].includes(x.status)).length;
+
+  const recent=[...letters].sort((a,b)=>b.tanggal.localeCompare(a.tanggal)).slice(0,5);
+  document.getElementById('recentTable').innerHTML=recent.length?`
+    <table><thead><tr><th>No.</th><th>Jenis</th><th>Perihal</th><th>Status</th></tr></thead>
+    <tbody>${recent.map(x=>`<tr><td>${escapeHtml(x.nomor)}</td><td>${x.jenis==='masuk'?'Masuk':'Keluar'}</td><td>${escapeHtml(x.perihal)}</td><td>${badge(x.status)}</td></tr>`).join('')}</tbody></table>`:
+    `<div class="empty">Belum ada data.</div>`;
+
+  document.getElementById('activityList').innerHTML=activities.slice(0,7).map(a=>`
+    <div class="activity-item"><div class="activity-dot"></div><div><div>${escapeHtml(a.text)}</div><small>${new Date(a.time).toLocaleString('id-ID')}</small></div></div>
+  `).join('');
+}
+
+function renderDisposisi(){
+  const data=[...disposisi].sort((a,b)=>b.created.localeCompare(a.created));
+  document.getElementById('tableDisposisi').innerHTML=data.length?`
+    <table><thead><tr><th>Nomor Surat</th><th>Perihal</th><th>Tujuan</th><th>Instruksi</th><th>Deadline</th><th>Aksi</th></tr></thead>
+    <tbody>${data.map(d=>{
+      const l=letters.find(x=>x.id===d.letterId);
+      return `<tr>
+        <td>${l?escapeHtml(l.nomor):'-'}</td>
+        <td>${l?escapeHtml(l.perihal):'Surat sudah dihapus'}</td>
+        <td>${escapeHtml(d.tujuan)}</td>
+        <td>${escapeHtml(d.catatan)}</td>
+        <td>${d.deadline?formatDate(d.deadline):'-'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteDisposisi('${d.id}')">Hapus</button></td>
+      </tr>`;
+    }).join('')}</tbody></table>`:`<div class="empty">Belum ada disposisi.</div>`;
+}
+
+function renderArsip(){
+  const q=(document.getElementById('searchArsip')?.value||'').toLowerCase();
+  const data=[...letters].filter(x=>(x.nomor+' '+x.pihak+' '+x.perihal+' '+x.status).toLowerCase().includes(q))
+    .sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+  document.getElementById('tableArsip').innerHTML=data.length?`
+    <table><thead><tr><th>Jenis</th><th>Nomor</th><th>Tanggal</th><th>Pihak</th><th>Perihal</th><th>Status</th></tr></thead>
+    <tbody>${data.map(x=>`<tr>
+      <td>${x.jenis==='masuk'?'Surat Masuk':'Surat Keluar'}</td>
+      <td><strong>${escapeHtml(x.nomor)}</strong></td>
+      <td>${formatDate(x.tanggal)}</td><td>${escapeHtml(x.pihak)}</td><td>${escapeHtml(x.perihal)}</td><td>${badge(x.status)}</td>
+    </tr>`).join('')}</tbody></table>`:`<div class="empty">Arsip tidak ditemukan.</div>`;
+}
+
+function updatePartyLabel(){
+  const jenis=document.getElementById('jenis').value;
+  document.getElementById('partyLabel').textContent=jenis==='masuk'?'Pengirim':'Tujuan';
+  const status=document.getElementById('status');
+  status.innerHTML=(jenis==='masuk'
+    ?['Baru','Diproses','Selesai']
+    :['Draft','Terkirim','Selesai'])
+    .map(x=>`<option>${x}</option>`).join('');
+}
+
+function openLetterModal(type='masuk'){
+  document.getElementById('letterForm').reset();
+  document.getElementById('editId').value='';
+  document.getElementById('jenis').value=type;
+  document.getElementById('tanggal').value=new Date().toISOString().slice(0,10);
+  document.getElementById('letterModalTitle').textContent='Tambah Surat';
+  updatePartyLabel();
+  document.getElementById('letterModal').classList.add('show');
+}
+
+function editLetter(id){
+  const x=letters.find(v=>v.id===id); if(!x) return;
+  document.getElementById('editId').value=x.id;
+  document.getElementById('jenis').value=x.jenis;
+  updatePartyLabel();
+  document.getElementById('nomor').value=x.nomor;
+  document.getElementById('tanggal').value=x.tanggal;
+  document.getElementById('pihak').value=x.pihak;
+  document.getElementById('perihal').value=x.perihal;
+  document.getElementById('sifat').value=x.sifat;
+  document.getElementById('status').value=x.status;
+  document.getElementById('keterangan').value=x.keterangan||'';
+  document.getElementById('letterModalTitle').textContent='Edit Surat';
+  document.getElementById('letterModal').classList.add('show');
+}
+
+function saveLetter(e){
+  e.preventDefault();
+  const id=document.getElementById('editId').value;
+  const item={
+    id:id||crypto.randomUUID(),
+    jenis:document.getElementById('jenis').value,
+    nomor:document.getElementById('nomor').value.trim(),
+    tanggal:document.getElementById('tanggal').value,
+    pihak:document.getElementById('pihak').value.trim(),
+    perihal:document.getElementById('perihal').value.trim(),
+    sifat:document.getElementById('sifat').value,
+    status:document.getElementById('status').value,
+    keterangan:document.getElementById('keterangan').value.trim()
+  };
+
+  if(id){
+    const idx=letters.findIndex(x=>x.id===id); letters[idx]=item;
+    addActivity(`Surat ${item.nomor} diperbarui.`);
+  }else{
+    letters.push(item);
+    addActivity(`Surat ${item.nomor} ditambahkan.`);
+  }
+  persist();
+  closeModal('letterModal');
+  renderAll();
+}
+
+function viewLetter(id){
+  const x=letters.find(v=>v.id===id); if(!x) return;
+  document.getElementById('detailContent').innerHTML=`
+    <div class="detail-list">
+      <div class="label">Jenis Surat</div><div>${x.jenis==='masuk'?'Surat Masuk':'Surat Keluar'}</div>
+      <div class="label">Nomor Surat</div><div><strong>${escapeHtml(x.nomor)}</strong></div>
+      <div class="label">Tanggal</div><div>${formatDate(x.tanggal)}</div>
+      <div class="label">${x.jenis==='masuk'?'Pengirim':'Tujuan'}</div><div>${escapeHtml(x.pihak)}</div>
+      <div class="label">Perihal</div><div>${escapeHtml(x.perihal)}</div>
+      <div class="label">Sifat</div><div>${escapeHtml(x.sifat)}</div>
+      <div class="label">Status</div><div>${badge(x.status)}</div>
+      <div class="label">Keterangan</div><div>${escapeHtml(x.keterangan||'-')}</div>
+    </div>`;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+function deleteLetter(id){
+  const x=letters.find(v=>v.id===id);
+  if(!x || !confirm(`Hapus surat ${x.nomor}?`)) return;
+  letters=letters.filter(v=>v.id!==id);
+  disposisi=disposisi.filter(d=>d.letterId!==id);
+  addActivity(`Surat ${x.nomor} dihapus.`);
+  persist(); renderAll();
+}
+
+function openDisposisi(letterId){
+  const x=letters.find(v=>v.id===letterId); if(!x) return;
+  document.getElementById('dispLetterId').value=letterId;
+  document.getElementById('dispTujuan').value='';
+  document.getElementById('dispDeadline').value='';
+  document.getElementById('dispCatatan').value='';
+  document.getElementById('disposisiModal').classList.add('show');
+}
+
+function saveDisposisi(e){
+  e.preventDefault();
+  const letterId=document.getElementById('dispLetterId').value;
+  const l=letters.find(x=>x.id===letterId);
+  disposisi.push({
+    id:crypto.randomUUID(),letterId,
+    tujuan:document.getElementById('dispTujuan').value.trim(),
+    deadline:document.getElementById('dispDeadline').value,
+    catatan:document.getElementById('dispCatatan').value.trim(),
+    created:new Date().toISOString()
+  });
+  if(l && l.status==='Baru') l.status='Diproses';
+  addActivity(`Disposisi dibuat untuk surat ${l?l.nomor:'-'}.`);
+  persist(); closeModal('disposisiModal'); renderAll();
+}
+
+function deleteDisposisi(id){
+  if(!confirm('Hapus disposisi ini?')) return;
+  disposisi=disposisi.filter(x=>x.id!==id);
+  addActivity('Satu disposisi dihapus.');
+  persist(); renderDisposisi(); renderDashboard();
+}
+
+function exportData(){
+  const payload={exportedAt:new Date().toISOString(),letters,disposisi};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='backup-surat-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
+
+function escapeHtml(s=''){
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+function renderAll(){
+  renderDashboard(); renderMasuk(); renderKeluar(); renderDisposisi(); renderArsip();
+}
+
+persist();
+renderAll();
+</script>
+</body>
+</html>
