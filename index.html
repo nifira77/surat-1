@@ -483,6 +483,11 @@
         const [isAddSuratKeluarOpen, setIsAddSuratKeluarOpen] = useState(false);
         const [isAddSuratIzinOpen, setIsAddSuratIzinOpen] = useState(false);
 
+        // Search Archive State
+        const [searchKeyword, setSearchKeyword] = useState('');
+        const [searchCategoryFilter, setSearchCategoryFilter] = useState('semua');
+        const [selectedArsipDetail, setSelectedArsipDetail] = useState(null);
+
         // Print State
         const [printState, setPrintState] = useState({
           isOpen: false,
@@ -504,7 +509,6 @@
           tanggalDiterima: new Date().toISOString().split('T')[0],
           perihal: '',
           ringkasan: '',
-          sifat: 'Biasa',
           status: 'belum_ditindaklanjuti',
           lampiran: '1 Berkas',
         });
@@ -621,7 +625,6 @@
             tanggalDiterima: new Date().toISOString().split('T')[0],
             perihal: '',
             ringkasan: '',
-            sifat: 'Biasa',
             status: 'belum_ditindaklanjuti',
             lampiran: '1 Berkas',
           });
@@ -759,7 +762,7 @@
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 hidden sm:block">
-                      Sistem Administrasi Persuratan & Disposisi Terpadu
+                      Sistem Administrasi Persuratan Terpadu
                     </p>
                   </div>
                 </div>
@@ -772,7 +775,7 @@
                       className="hidden lg:flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-300 text-amber-900 rounded-full text-xs font-semibold hover:bg-amber-100 transition-colors animate-pulse"
                     >
                       <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                      <span>{pendingLetters.length} Surat Perlu Disposisi</span>
+                      <span>{pendingLetters.length} Surat Masuk Perlu Tindak Lanjut</span>
                     </button>
                   )}
 
@@ -872,6 +875,7 @@
                       { id: 'surat-masuk', label: 'Surat Masuk', icon: 'M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4', badge: pendingLetters.length },
                       { id: 'surat-keluar', label: 'Surat Keluar', icon: 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8' },
                       { id: 'surat-izin', label: 'Arsip Surat Izin', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+                      { id: 'pencarian-arsip', label: 'Pencarian Arsip', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
                       { id: 'laporan', label: 'Laporan Bulanan', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
                       { id: 'profil', label: 'Profil Sekolah', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
                     ].map((tab) => (
@@ -905,7 +909,7 @@
                         ⚠️ Perlu Tindak Lanjut
                       </div>
                       <p className="text-[11px] leading-relaxed text-red-300">
-                        Terdapat <strong>{pendingLetters.length}</strong> surat masuk yang belum didisposisi.
+                        Terdapat <strong>{pendingLetters.length}</strong> surat masuk yang belum ditindaklanjuti.
                       </p>
                       <button
                         onClick={() => setActiveTab('surat-masuk')}
@@ -941,7 +945,7 @@
                 
                 {/* Mobile Tab Pills */}
                 <div className="lg:hidden flex overflow-x-auto gap-2 mb-4 pb-2 border-b border-slate-200 print-hidden">
-                  {['dashboard', 'surat-masuk', 'surat-keluar', 'surat-izin', 'laporan', 'profil'].map((tab) => (
+                  {['dashboard', 'surat-masuk', 'surat-keluar', 'surat-izin', 'pencarian-arsip', 'laporan', 'profil'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -1042,8 +1046,14 @@
                           + Rekap Surat Izin
                         </button>
                         <button
+                          onClick={() => setActiveTab('pencarian-arsip')}
+                          className="p-3 rounded-lg border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold text-center"
+                        >
+                          🔍 Pencarian Arsip
+                        </button>
+                        <button
                           onClick={() => setActiveTab('laporan')}
-                          className="p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-semibold text-center"
+                          className="p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-semibold text-center col-span-2 sm:col-span-1"
                         >
                           🖨️ Cetak Rekap Bulanan
                         </button>
@@ -1058,7 +1068,7 @@
                     <div className="flex justify-between items-center">
                       <div>
                         <h2 className="text-xl font-bold text-slate-900">Buku Agenda Surat Masuk</h2>
-                        <p className="text-xs text-slate-500">Pencatatan dan lembar disposisi resmi Kepala Sekolah</p>
+                        <p className="text-xs text-slate-500">Pencatatan dan pengarsipan agenda surat masuk kedinasan</p>
                       </div>
                       <button
                         onClick={() => setIsAddSuratMasukOpen(true)}
@@ -1076,7 +1086,6 @@
                             <th className="py-3 px-4">Nomor & Tanggal</th>
                             <th className="py-3 px-4">Pengirim & Perihal</th>
                             <th className="py-3 px-4 text-center">Berkas Digital</th>
-                            <th className="py-3 px-4 text-center">Sifat</th>
                             <th className="py-3 px-4 text-center">Status</th>
                             <th className="py-3 px-4 text-center">Aksi</th>
                           </tr>
@@ -1112,39 +1121,41 @@
                                 )}
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${surat.sifat === 'Segera' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-800'}`}>
-                                  {surat.sifat}
-                                </span>
-                              </td>
-                              <td className="py-3 px-4 text-center">
                                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${surat.status === 'belum_ditindaklanjuti' ? 'bg-red-100 text-red-700' : surat.status === 'sedang_diproses' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                                  {surat.status.replace('_', ' ')}
+                                  {surat.status === 'belum_ditindaklanjuti' ? 'Perlu Tindakan' : surat.status === 'sedang_diproses' ? 'Diproses' : 'Selesai'}
                                 </span>
                               </td>
                               <td className="py-3 px-4 text-center">
                                 <div className="flex items-center justify-center gap-1.5">
-                                  <button
-                                    onClick={() => {
-                                      setActiveDisposisiModal(surat);
-                                      setDisposisiForm({
-                                        diteruskanKepada: surat.disposisi?.diteruskanKepada || ['Kepala Tata Usaha'],
-                                        isiDisposisi: surat.disposisi?.isiDisposisi || 'Harap dipelajari dan ditindaklanjuti segera.',
-                                        sifatDisposisi: 'Segera',
-                                        tanggalDisposisi: new Date().toISOString().split('T')[0],
-                                        catatanTambahan: '',
-                                        status: surat.status,
-                                        catatanPetugas: surat.tindakLanjut?.catatanPetugas || '',
-                                      });
+                                  <select
+                                    value={surat.status}
+                                    onChange={(e) => {
+                                      const nextStatus = e.target.value;
+                                      setSuratMasukList(suratMasukList.map(s => s.id === surat.id ? { ...s, status: nextStatus } : s));
                                     }}
-                                    className="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-medium text-[11px]"
+                                    className="px-2 py-1 bg-slate-50 border border-slate-200 text-slate-700 rounded text-[11px] font-medium cursor-pointer"
                                   >
-                                    Disposisi
-                                  </button>
+                                    <option value="belum_ditindaklanjuti">Perlu Tindakan</option>
+                                    <option value="sedang_diproses">Diproses</option>
+                                    <option value="selesai">Selesai</option>
+                                  </select>
                                   <button
                                     onClick={() => setPrintState({ isOpen: true, type: 'lembar-disposisi', suratMasuk: surat })}
                                     className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px]"
+                                    title="Cetak Arsip / Bukti Terima"
                                   >
                                     🖨️ Cetak
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      if (confirm(`Hapus surat masuk No. Agenda: ${surat.noAgenda}?`)) {
+                                        setSuratMasukList(suratMasukList.filter(s => s.id !== surat.id));
+                                      }
+                                    }}
+                                    className="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px]"
+                                    title="Hapus Agenda"
+                                  >
+                                    🗑️
                                   </button>
                                 </div>
                               </td>
@@ -1292,6 +1303,263 @@
                     </div>
                   </div>
                 )}
+
+                {/* 4.5. PENCARIAN ARSIP TERPADU VIEW */}
+                {activeTab === 'pencarian-arsip' && (() => {
+                  const query = (searchKeyword || '').toLowerCase().trim();
+                  
+                  // Aggregate all archives
+                  const allArchives = [
+                    ...suratMasukList.map(s => ({
+                      id: `sm-${s.id}`,
+                      kategori: 'surat-masuk',
+                      kategoriLabel: 'Surat Masuk',
+                      badgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                      noDokumen: s.noSurat || s.noAgenda,
+                      noSecondary: `Agenda: ${s.noAgenda}`,
+                      tanggal: s.tanggalDiterima || s.tanggalSurat,
+                      pihakLabel: 'Pengirim',
+                      pihakNama: s.asalSurat,
+                      perihal: s.perihal,
+                      ringkasan: s.ringkasan || '',
+                      status: s.status === 'belum_ditindaklanjuti' ? 'Perlu Tindakan' : s.status === 'sedang_diproses' ? 'Diproses' : 'Selesai',
+                      berkas: s.berkasLampiran,
+                      rawItem: s,
+                      tipePrint: 'lembar-disposisi',
+                    })),
+                    ...suratKeluarList.map(s => ({
+                      id: `sk-${s.id}`,
+                      kategori: 'surat-keluar',
+                      kategoriLabel: 'Surat Keluar',
+                      badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                      noDokumen: s.noSurat,
+                      noSecondary: s.jenisSurat,
+                      tanggal: s.tanggalSurat,
+                      pihakLabel: 'Tujuan',
+                      pihakNama: s.tujuan,
+                      perihal: s.perihal,
+                      ringkasan: s.isiSurat || '',
+                      status: s.status,
+                      berkas: s.berkasLampiran,
+                      rawItem: s,
+                      tipePrint: 'surat-keluar',
+                    })),
+                    ...suratIzinList.map(s => ({
+                      id: `si-${s.id}`,
+                      kategori: 'surat-izin',
+                      kategoriLabel: 'Arsip Surat Izin',
+                      badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
+                      noDokumen: s.noSuratIzin,
+                      noSecondary: `${s.tipePemohon} • ${s.kelasAtauJabatan}`,
+                      tanggal: s.tanggalMulai,
+                      pihakLabel: 'Pemohon',
+                      pihakNama: s.nama,
+                      perihal: `Izin ${s.jenisIzin}: ${s.alasan}`,
+                      ringkasan: `Durasi: ${s.jumlahHari} hari (${s.tanggalMulai} s.d ${s.tanggalSelesai})`,
+                      status: s.status,
+                      berkas: s.berkasLampiran,
+                      rawItem: s,
+                      tipePrint: 'surat-izin',
+                    })),
+                  ];
+
+                  const filteredArchives = allArchives.filter(item => {
+                    const matchCategory = 
+                      searchCategoryFilter === 'semua' ? true :
+                      searchCategoryFilter === 'lampiran' ? Boolean(item.berkas) :
+                      item.kategori === searchCategoryFilter;
+
+                    if (!matchCategory) return false;
+                    if (!query) return true;
+
+                    const matchKeyword = 
+                      (item.noDokumen || '').toLowerCase().includes(query) ||
+                      (item.noSecondary || '').toLowerCase().includes(query) ||
+                      (item.pihakNama || '').toLowerCase().includes(query) ||
+                      (item.perihal || '').toLowerCase().includes(query) ||
+                      (item.ringkasan || '').toLowerCase().includes(query) ||
+                      (item.tanggal || '').toLowerCase().includes(query);
+
+                    return matchKeyword;
+                  });
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <h2 className="text-xl font-bold text-slate-900">Pusat Pencarian Arsip Terpadu</h2>
+                          <p className="text-xs text-slate-500">
+                            Cari cepat seluruh dokumen surat masuk, surat keluar resmi, serta arsip surat izin
+                          </p>
+                        </div>
+                        <div className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                          Total Arsip Tersedia: <strong className="text-slate-900">{allArchives.length}</strong> Berkas
+                        </div>
+                      </div>
+
+                      {/* Search Box & Filters */}
+                      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="Ketik kata kunci: nomor surat, nomor agenda, pengirim, tujuan, siswa, atau perihal..."
+                            value={searchKeyword}
+                            onChange={(e) => setSearchKeyword(e.target.value)}
+                            className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                          />
+                          <span className="absolute left-3 top-3 text-slate-400 text-xs">🔍</span>
+                          {searchKeyword && (
+                            <button
+                              onClick={() => setSearchKeyword('')}
+                              className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-sm font-bold"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Filter Tabs */}
+                        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100">
+                          <span className="text-[11px] font-semibold text-slate-500 mr-1">Kategori:</span>
+                          {[
+                            { id: 'semua', label: 'Semua Kategori', count: allArchives.length },
+                            { id: 'surat-masuk', label: 'Surat Masuk', count: suratMasukList.length },
+                            { id: 'surat-keluar', label: 'Surat Keluar', count: suratKeluarList.length },
+                            { id: 'surat-izin', label: 'Surat Izin', count: suratIzinList.length },
+                            { id: 'lampiran', label: '📎 Berkas Digital', count: allArchives.filter(a => a.berkas).length },
+                          ].map(f => (
+                            <button
+                              key={f.id}
+                              onClick={() => setSearchCategoryFilter(f.id)}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                                searchCategoryFilter === f.id
+                                  ? 'bg-blue-700 text-white shadow-xs'
+                                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              }`}
+                            >
+                              <span>{f.label}</span>
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                                searchCategoryFilter === f.id ? 'bg-blue-800 text-blue-100' : 'bg-slate-200 text-slate-600'
+                              }`}>
+                                {f.count}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Search Results Table */}
+                      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div className="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs text-slate-600 font-medium">
+                          <span>Hasil Pencarian: <strong>{filteredArchives.length}</strong> dokumen ditemukan</span>
+                          {searchKeyword && (
+                            <span className="text-[11px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                              Kata Kunci: "{searchKeyword}"
+                            </span>
+                          )}
+                        </div>
+
+                        {filteredArchives.length === 0 ? (
+                          <div className="p-12 text-center text-slate-500">
+                            <div className="text-3xl mb-2">🔍</div>
+                            <h4 className="font-bold text-slate-700 text-sm">Tidak ada arsip yang cocok</h4>
+                            <p className="text-xs text-slate-500 mt-1">Coba kata kunci lain atau pilih kategori "Semua Kategori"</p>
+                            <button
+                              onClick={() => { setSearchKeyword(''); setSearchCategoryFilter('semua'); }}
+                              className="mt-3 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-xs font-semibold"
+                            >
+                              Reset Pencarian
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs">
+                              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[11px]">
+                                <tr>
+                                  <th className="py-3 px-4">Kategori & No. Dokumen</th>
+                                  <th className="py-3 px-4">Tanggal</th>
+                                  <th className="py-3 px-4">Pihak Terkait</th>
+                                  <th className="py-3 px-4">Perihal / Keterangan</th>
+                                  <th className="py-3 px-4 text-center">Berkas</th>
+                                  <th className="py-3 px-4 text-center">Status</th>
+                                  <th className="py-3 px-4 text-center">Aksi</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {filteredArchives.map((doc) => (
+                                  <tr key={doc.id} className="hover:bg-slate-50/80 transition-colors">
+                                    <td className="py-3 px-4">
+                                      <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold border mb-1 ${doc.badgeClass}`}>
+                                        {doc.kategoriLabel}
+                                      </span>
+                                      <div className="font-mono font-semibold text-slate-900">{doc.noDokumen}</div>
+                                      <div className="text-[10px] text-slate-500">{doc.noSecondary}</div>
+                                    </td>
+                                    <td className="py-3 px-4 whitespace-nowrap text-slate-700 font-medium">
+                                      {doc.tanggal}
+                                    </td>
+                                    <td className="py-3 px-4">
+                                      <div className="text-[10px] uppercase font-bold text-slate-500">{doc.pihakLabel}</div>
+                                      <div className="font-semibold text-slate-900">{doc.pihakNama}</div>
+                                    </td>
+                                    <td className="py-3 px-4 max-w-xs">
+                                      <div className="font-medium text-slate-900 line-clamp-1">{doc.perihal}</div>
+                                      {doc.ringkasan && (
+                                        <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{doc.ringkasan}</div>
+                                      )}
+                                    </td>
+                                    <td className="py-3 px-4 text-center whitespace-nowrap">
+                                      {doc.berkas ? (
+                                        <span
+                                          className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[11px] font-semibold border border-blue-200"
+                                          title={doc.berkas.namaFile}
+                                        >
+                                          📎 Ada Scan
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-400 text-[11px]">-</span>
+                                      )}
+                                    </td>
+                                    <td className="py-3 px-4 text-center whitespace-nowrap">
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                                        {doc.status}
+                                      </span>
+                                    </td>
+                                    <td className="py-3 px-4 text-center whitespace-nowrap">
+                                      <div className="flex items-center justify-center gap-1.5">
+                                        <button
+                                          onClick={() => setSelectedArsipDetail(doc)}
+                                          className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-[11px] font-medium"
+                                        >
+                                          Lihat Detail
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            if (doc.tipePrint === 'lembar-disposisi') {
+                                              setPrintState({ isOpen: true, type: 'lembar-disposisi', suratMasuk: doc.rawItem });
+                                            } else if (doc.tipePrint === 'surat-keluar') {
+                                              setPrintState({ isOpen: true, type: 'surat-keluar', suratKeluar: doc.rawItem });
+                                            } else {
+                                              setPrintState({ isOpen: true, type: 'surat-izin', suratIzin: doc.rawItem });
+                                            }
+                                          }}
+                                          className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px]"
+                                          title="Cetak format cetak resmi"
+                                        >
+                                          🖨️ Cetak
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* 5. LAPORAN BULANAN VIEW */}
                 {activeTab === 'laporan' && (
@@ -1747,20 +2015,21 @@
               </div>
             )}
 
-            {/* MODAL: Lembar Disposisi */}
+            {/* MODAL: Detail & Tindak Lanjut Surat Masuk */}
             {activeDisposisiModal && (
               <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                <div className="bg-white w-full max-w-2xl rounded-xl shadow-xl overflow-hidden p-6 text-xs space-y-4">
+                <div className="bg-white w-full max-w-xl rounded-xl shadow-xl overflow-hidden p-6 text-xs space-y-4">
                   <div className="flex justify-between items-center border-b pb-2">
                     <div>
-                      <h3 className="font-bold text-sm">Lembar Disposisi Kepala Sekolah</h3>
-                      <p className="text-[11px] text-slate-500">Kepsek: {profile.kepalaSekolah} (NIP. {profile.nipKepalaSekolah})</p>
+                      <h3 className="font-bold text-sm text-slate-900">Detail & Tindak Lanjut Surat Masuk</h3>
+                      <p className="text-[11px] text-slate-500">Agenda: {activeDisposisiModal.noAgenda}</p>
                     </div>
                     <button onClick={() => setActiveDisposisiModal(null)} className="text-slate-400 hover:text-black">✕</button>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded border">
+                  <div className="bg-slate-50 p-3 rounded border space-y-1">
                     <p className="font-bold text-slate-900">{activeDisposisiModal.asalSurat}</p>
                     <p className="text-slate-700">{activeDisposisiModal.perihal}</p>
+                    <p className="text-[11px] text-slate-500">Nomor: {activeDisposisiModal.noSurat} • Diterima: {activeDisposisiModal.tanggalDiterima}</p>
                   </div>
 
                   {/* Berkas Digital Surat Masuk */}
@@ -1774,7 +2043,7 @@
                         <span className="text-[10px] text-slate-500">
                           {activeDisposisiModal.berkasLampiran
                             ? `${activeDisposisiModal.berkasLampiran.ukuranFile} • Diunggah: ${activeDisposisiModal.berkasLampiran.tanggalUpload}`
-                            : 'Unggah file digital PDF/JPG scan surat pengirim'}
+                            : 'Unggah file digital PDF/JPG scan surat'}
                         </span>
                       </div>
                     </div>
@@ -1789,15 +2058,6 @@
 
                   <div className="space-y-3">
                     <div>
-                      <label className="block font-semibold mb-1">Instruksi / Petunjuk Disposisi Kepala Sekolah:</label>
-                      <textarea
-                        rows={3}
-                        value={disposisiForm.isiDisposisi}
-                        onChange={e => setDisposisiForm({...disposisiForm, isiDisposisi: e.target.value})}
-                        className="w-full p-2 border rounded font-serif text-sm"
-                      />
-                    </div>
-                    <div>
                       <label className="block font-semibold mb-1">Status Tindak Lanjut:</label>
                       <select
                         value={disposisiForm.status}
@@ -1810,7 +2070,7 @@
                       </select>
                     </div>
                     <div>
-                      <label className="block font-semibold mb-1">Catatan Petugas Tata Usaha ({profile.namaTataUsaha}):</label>
+                      <label className="block font-semibold mb-1">Catatan Tindak Lanjut Petugas TU ({profile.namaTataUsaha}):</label>
                       <input
                         type="text"
                         placeholder="Catatan hasil tindak lanjut..."
@@ -1826,12 +2086,86 @@
                       onClick={() => setPrintState({ isOpen: true, type: 'lembar-disposisi', suratMasuk: activeDisposisiModal })}
                       className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded font-medium"
                     >
-                      🖨️ Cetak Lembar Disposisi
+                      🖨️ Cetak Lembar Agenda
                     </button>
                     <div className="flex gap-2">
                       <button onClick={() => setActiveDisposisiModal(null)} className="px-3 py-1.5 border rounded">Tutup</button>
-                      <button onClick={handleSaveDisposisi} className="px-4 py-1.5 bg-blue-700 text-white rounded font-semibold">Simpan Disposisi</button>
+                      <button onClick={handleSaveDisposisi} className="px-4 py-1.5 bg-blue-700 text-white rounded font-semibold">Simpan Perubahan</button>
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* MODAL: Detail Arsip dari Pencarian */}
+            {selectedArsipDetail && (
+              <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-white w-full max-w-lg rounded-xl shadow-xl overflow-hidden p-6 text-xs space-y-4">
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <div>
+                      <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold border mb-1 ${selectedArsipDetail.badgeClass}`}>
+                        {selectedArsipDetail.kategoriLabel}
+                      </span>
+                      <h3 className="font-bold text-sm text-slate-900">{selectedArsipDetail.noDokumen}</h3>
+                    </div>
+                    <button onClick={() => setSelectedArsipDetail(null)} className="text-slate-400 hover:text-black">✕</button>
+                  </div>
+
+                  <div className="space-y-2.5 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Tanggal Dokumen:</span>
+                      <span className="text-slate-800 font-semibold">{selectedArsipDetail.tanggal}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-500 block">{selectedArsipDetail.pihakLabel}:</span>
+                      <span className="text-slate-900 font-bold">{selectedArsipDetail.pihakNama}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Perihal / Keterangan:</span>
+                      <span className="text-slate-800">{selectedArsipDetail.perihal}</span>
+                    </div>
+                    {selectedArsipDetail.ringkasan && (
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Ringkasan / Isi:</span>
+                        <p className="text-slate-700 whitespace-pre-wrap">{selectedArsipDetail.ringkasan}</p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Status:</span>
+                      <span className="font-semibold text-slate-800">{selectedArsipDetail.status}</span>
+                    </div>
+                    {selectedArsipDetail.berkas && (
+                      <div className="pt-2 border-t border-slate-200">
+                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Berkas Digital:</span>
+                        <div className="inline-flex items-center gap-1.5 mt-1 px-2.5 py-1 bg-blue-50 text-blue-800 rounded border border-blue-200">
+                          <span>📎 {selectedArsipDetail.berkas.namaFile} ({selectedArsipDetail.berkas.ukuranFile})</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <button
+                      onClick={() => {
+                        const doc = selectedArsipDetail;
+                        if (doc.tipePrint === 'lembar-disposisi') {
+                          setPrintState({ isOpen: true, type: 'lembar-disposisi', suratMasuk: doc.rawItem });
+                        } else if (doc.tipePrint === 'surat-keluar') {
+                          setPrintState({ isOpen: true, type: 'surat-keluar', suratKeluar: doc.rawItem });
+                        } else {
+                          setPrintState({ isOpen: true, type: 'surat-izin', suratIzin: doc.rawItem });
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded font-semibold text-xs flex items-center gap-1"
+                    >
+                      🖨️ Cetak Dokumen
+                    </button>
+                    <button
+                      onClick={() => setSelectedArsipDetail(null)}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium text-xs"
+                    >
+                      Tutup
+                    </button>
                   </div>
                 </div>
               </div>
