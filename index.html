@@ -260,6 +260,13 @@
           jumlahHari: 3,
           alasan: 'Sakit demam dan disarankan istirahat oleh dokter Puskesmas Lambu Kibang.',
           dokumenPendukung: 'Surat Keterangan Dokter Terlampir',
+          berkasLampiran: {
+            namaFile: 'Surat_Keterangan_Dokter_Puskesmas.pdf',
+            ukuranFile: '312.4 KB',
+            tipeFile: 'application/pdf',
+            tanggalUpload: '2026-09-17',
+            keterangan: 'Surat keterangan sakit dari dokter Puskesmas Lambu Kibang.',
+          },
           status: 'Disetujui',
           disetujuiOleh: 'PEBRIANSYAH., M.Pd',
           tanggalPengajuan: '2026-09-17',
@@ -277,6 +284,13 @@
           jumlahHari: 2,
           alasan: 'Menghadiri Workshop Pembelajaran Literasi Berdiferensiasi di Balai Guru Penggerak Provinsi Lampung.',
           dokumenPendukung: 'Undangan BGP Lampung No. 120/BGP-LPG/2026',
+          berkasLampiran: {
+            namaFile: 'Undangan_Resmi_BGP_Lampung.pdf',
+            ukuranFile: '480.1 KB',
+            tipeFile: 'application/pdf',
+            tanggalUpload: '2026-09-16',
+            keterangan: 'Surat undangan workshop dari BGP Lampung.',
+          },
           status: 'Disetujui',
           disetujuiOleh: 'PEBRIANSYAH., M.Pd',
           tanggalPengajuan: '2026-09-16',
@@ -590,8 +604,10 @@
           if (!uploadModalState) return;
           if (uploadModalState.type === 'masuk') {
             setSuratMasukList(suratMasukList.map(s => s.id === uploadModalState.surat.id ? { ...s, berkasLampiran: berkas } : s));
-          } else {
+          } else if (uploadModalState.type === 'keluar') {
             setSuratKeluarList(suratKeluarList.map(s => s.id === uploadModalState.surat.id ? { ...s, berkasLampiran: berkas } : s));
+          } else if (uploadModalState.type === 'izin') {
+            setSuratIzinList(suratIzinList.map(s => s.id === uploadModalState.surat.id ? { ...s, berkasLampiran: berkas } : s));
           }
           setUploadModalState(null);
         };
@@ -677,9 +693,25 @@
             ...formSuratIzin,
             disetujuiOleh: profile.kepalaSekolah,
             tanggalPengajuan: new Date().toISOString().split('T')[0],
+            berkasLampiran: newAttachedBerkas || undefined,
           };
           setSuratIzinList([item, ...suratIzinList]);
           setIsAddSuratIzinOpen(false);
+          setNewAttachedBerkas(null);
+          setFormSuratIzin({
+            noSuratIzin: `${String(suratIzinList.length + 19).padStart(3, '0')}/IZIN/IX/2026`,
+            tipePemohon: 'Siswa',
+            nama: '',
+            nomorIdentitas: '',
+            kelasAtauJabatan: 'Kelas VIII-A',
+            jenisIzin: 'Sakit',
+            tanggalMulai: new Date().toISOString().split('T')[0],
+            tanggalSelesai: new Date().toISOString().split('T')[0],
+            jumlahHari: 1,
+            alasan: '',
+            dokumenPendukung: 'Surat Keterangan Dokter',
+            status: 'Disetujui',
+          });
         };
 
         // Realtime Simulation Button
@@ -1266,6 +1298,7 @@
                             <th className="py-3 px-4">Nama & Pemohon</th>
                             <th className="py-3 px-4">Jenis & Durasi</th>
                             <th className="py-3 px-4">Alasan</th>
+                            <th className="py-3 px-4 text-center">Berkas Lampiran</th>
                             <th className="py-3 px-4 text-center">Status</th>
                             <th className="py-3 px-4 text-center">Aksi</th>
                           </tr>
@@ -1283,6 +1316,24 @@
                                 <div className="text-[10px] text-slate-500">{izin.jumlahHari} Hari</div>
                               </td>
                               <td className="py-3 px-4 text-slate-700">"{izin.alasan}"</td>
+                              <td className="py-3 px-4 text-center">
+                                {izin.berkasLampiran ? (
+                                  <button
+                                    onClick={() => setUploadModalState({ type: 'izin', surat: izin })}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded text-[11px] font-medium border border-purple-200"
+                                    title={izin.berkasLampiran.namaFile}
+                                  >
+                                    📎 <span className="truncate max-w-[110px]">{izin.berkasLampiran.namaFile}</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => setUploadModalState({ type: 'izin', surat: izin })}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-purple-50 text-slate-600 hover:text-purple-700 rounded text-[11px] border border-dashed border-slate-300"
+                                  >
+                                    ☁️ + Upload
+                                  </button>
+                                )}
+                              </td>
                               <td className="py-3 px-4 text-center">
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                                   {izin.status}
@@ -2233,19 +2284,22 @@
             {/* MODAL: Tambah Surat Izin */}
             {isAddSuratIzinOpen && (
               <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                <div className="bg-white w-full max-w-lg rounded-xl shadow-xl overflow-hidden p-6 text-xs space-y-4">
+                <div className="bg-white w-full max-w-xl rounded-xl shadow-xl overflow-hidden p-6 text-xs space-y-4 max-h-[85vh] overflow-y-auto">
                   <div className="flex justify-between items-center border-b pb-2">
-                    <h3 className="font-bold text-sm">Pencatatan Surat Izin Baru</h3>
-                    <button onClick={() => setIsAddSuratIzinOpen(false)} className="text-slate-400 hover:text-black">✕</button>
+                    <div>
+                      <h3 className="font-bold text-sm text-slate-900">Pencatatan Surat Izin Baru</h3>
+                      <p className="text-[11px] text-slate-500">Izin Siswa, Guru, atau Staf TU dengan Berkas Pendukung</p>
+                    </div>
+                    <button onClick={() => { setIsAddSuratIzinOpen(false); setNewAttachedBerkas(null); }} className="text-slate-400 hover:text-black">✕</button>
                   </div>
                   <form onSubmit={handleSaveSuratIzin} className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block font-semibold mb-1">Nomor Registrasi Izin</label>
+                        <label className="block font-semibold mb-1">Nomor Registrasi Izin *</label>
                         <input type="text" required value={formSuratIzin.noSuratIzin} onChange={e => setFormSuratIzin({...formSuratIzin, noSuratIzin: e.target.value})} className="w-full p-2 border rounded font-mono" />
                       </div>
                       <div>
-                        <label className="block font-semibold mb-1">Tipe Pemohon</label>
+                        <label className="block font-semibold mb-1">Tipe Pemohon *</label>
                         <select value={formSuratIzin.tipePemohon} onChange={e => setFormSuratIzin({...formSuratIzin, tipePemohon: e.target.value})} className="w-full p-2 border rounded">
                           <option value="Siswa">Siswa</option>
                           <option value="Guru">Guru</option>
@@ -2253,35 +2307,103 @@
                         </select>
                       </div>
                     </div>
-                    <div>
-                      <label className="block font-semibold mb-1">Nama Lengkap *</label>
-                      <input type="text" required value={formSuratIzin.nama} onChange={e => setFormSuratIzin({...formSuratIzin, nama: e.target.value})} className="w-full p-2 border rounded" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-semibold mb-1">Nama Lengkap *</label>
+                        <input type="text" required placeholder="Nama siswa/guru" value={formSuratIzin.nama} onChange={e => setFormSuratIzin({...formSuratIzin, nama: e.target.value})} className="w-full p-2 border rounded" />
+                      </div>
+                      <div>
+                        <label className="block font-semibold mb-1">Nomor Identitas (NISN / NIP)</label>
+                        <input type="text" placeholder="Contoh: NISN 0102938475" value={formSuratIzin.nomorIdentitas} onChange={e => setFormSuratIzin({...formSuratIzin, nomorIdentitas: e.target.value})} className="w-full p-2 border rounded font-mono" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-semibold mb-1">Kelas / Mata Pelajaran / Jabatan</label>
+                        <input type="text" placeholder="Contoh: Kelas VIII-B / Guru Matematika" value={formSuratIzin.kelasAtauJabatan} onChange={e => setFormSuratIzin({...formSuratIzin, kelasAtauJabatan: e.target.value})} className="w-full p-2 border rounded" />
+                      </div>
+                      <div>
+                        <label className="block font-semibold mb-1">Jenis Izin *</label>
+                        <select value={formSuratIzin.jenisIzin} onChange={e => setFormSuratIzin({...formSuratIzin, jenisIzin: e.target.value})} className="w-full p-2 border rounded font-semibold">
+                          <option value="Sakit">Sakit</option>
+                          <option value="Keperluan Keluarga">Keperluan Keluarga</option>
+                          <option value="Dinas Luar">Dinas Luar</option>
+                          <option value="Dispensasi Lomba">Dispensasi Lomba</option>
+                          <option value="Cuti">Cuti</option>
+                          <option value="Lainnya">Lainnya</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <label className="block font-semibold mb-1">Mulai Tanggal</label>
+                        <input type="date" required value={formSuratIzin.tanggalMulai} onChange={e => setFormSuratIzin({...formSuratIzin, tanggalMulai: e.target.value})} className="w-full p-1.5 border rounded" />
+                      </div>
+                      <div>
+                        <label className="block font-semibold mb-1">Sampai Tanggal</label>
+                        <input type="date" required value={formSuratIzin.tanggalSelesai} onChange={e => setFormSuratIzin({...formSuratIzin, tanggalSelesai: e.target.value})} className="w-full p-1.5 border rounded" />
+                      </div>
+                      <div>
+                        <label className="block font-semibold mb-1">Jumlah Hari</label>
+                        <input type="number" min={1} required value={formSuratIzin.jumlahHari} onChange={e => setFormSuratIzin({...formSuratIzin, jumlahHari: Number(e.target.value)})} className="w-full p-1.5 border rounded" />
+                      </div>
                     </div>
                     <div>
                       <label className="block font-semibold mb-1">Alasan Permohonan Izin *</label>
-                      <textarea rows={2} required value={formSuratIzin.alasan} onChange={e => setFormSuratIzin({...formSuratIzin, alasan: e.target.value})} className="w-full p-2 border rounded" />
+                      <textarea rows={2} required placeholder="Jelaskan alasan keperluan izin..." value={formSuratIzin.alasan} onChange={e => setFormSuratIzin({...formSuratIzin, alasan: e.target.value})} className="w-full p-2 border rounded" />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-1">Keterangan Dokumen Pendukung (Opsional)</label>
+                      <input type="text" placeholder="Contoh: Surat Keterangan Dokter Puskesmas / Surat Undangan Dinas" value={formSuratIzin.dokumenPendukung} onChange={e => setFormSuratIzin({...formSuratIzin, dokumenPendukung: e.target.value})} className="w-full p-1.5 border rounded" />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-1">Unggah Berkas Bukti / Scan Surat Izin (Opsional)</label>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) handleProcessFileSelect(e.target.files[0], setNewAttachedBerkas);
+                        }}
+                        className="w-full p-1.5 border rounded text-[11px] bg-slate-50 cursor-pointer"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-0.5">Mendukung format PDF, Foto/Scan (JPG, PNG), Word (DOCX) maksimal 10MB.</p>
+                      {newAttachedBerkas && (
+                        <div className="flex items-center justify-between p-2 mt-1.5 bg-purple-50 border border-purple-200 rounded text-[11px] text-purple-800 font-medium">
+                          <span>✓ Berkas siap dilampirkan: <strong>{newAttachedBerkas.namaFile}</strong> ({newAttachedBerkas.ukuranFile})</span>
+                          <button type="button" onClick={() => setNewAttachedBerkas(null)} className="text-red-600 hover:text-red-700 font-bold ml-2">✕ Hapus</button>
+                        </div>
+                      )}
                     </div>
                     <div className="flex justify-end gap-2 pt-2 border-t">
-                      <button type="button" onClick={() => setIsAddSuratIzinOpen(false)} className="px-3 py-1.5 border rounded">Batal</button>
-                      <button type="submit" className="px-4 py-1.5 bg-purple-700 text-white rounded font-semibold">Simpan Arsip Izin</button>
+                      <button type="button" onClick={() => { setIsAddSuratIzinOpen(false); setNewAttachedBerkas(null); }} className="px-3 py-1.5 border rounded">Batal</button>
+                      <button type="submit" className="px-4 py-1.5 bg-purple-700 hover:bg-purple-800 text-white rounded font-semibold">Simpan Arsip Izin</button>
                     </div>
                   </form>
                 </div>
               </div>
             )}
 
-            {/* MODAL: Upload & Kelola Berkas Digital (Surat Masuk / Keluar) */}
+            {/* MODAL: Upload & Kelola Berkas Digital (Surat Masuk / Keluar / Surat Izin) */}
             {uploadModalState && (
               <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
                 <div className="bg-white w-full max-w-lg rounded-xl shadow-xl overflow-hidden p-6 text-xs space-y-4 max-h-[90vh] overflow-y-auto">
                   <div className="flex justify-between items-center border-b pb-2">
                     <div>
                       <h3 className="font-bold text-sm text-slate-900">
-                        {uploadModalState.type === 'masuk' ? 'Berkas Digital Surat Masuk' : 'Berkas Digital Surat Keluar'}
+                        {uploadModalState.type === 'masuk'
+                          ? 'Berkas Digital Surat Masuk'
+                          : uploadModalState.type === 'keluar'
+                          ? 'Berkas Digital Surat Keluar'
+                          : 'Berkas Bukti / Lampiran Surat Izin'}
                       </h3>
                       <p className="text-[11px] text-slate-500 font-mono">
-                        {uploadModalState.surat.noSurat}
+                        {uploadModalState.surat.noSurat || uploadModalState.surat.noSuratIzin}
                       </p>
+                      {uploadModalState.type === 'izin' && (
+                        <p className="text-[11px] text-slate-600 mt-0.5">
+                          Pemohon: <strong>{uploadModalState.surat.nama}</strong> ({uploadModalState.surat.tipePemohon} • {uploadModalState.surat.kelasAtauJabatan})
+                        </p>
+                      )}
                     </div>
                     <button onClick={() => setUploadModalState(null)} className="text-slate-400 hover:text-black text-base">✕</button>
                   </div>
@@ -2342,14 +2464,20 @@
                     </div>
                   ) : (
                     <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
-                      Belum ada berkas scan surat / dokumen lampiran yang diunggah untuk surat ini.
+                      {uploadModalState.type === 'izin'
+                        ? 'Belum ada berkas scan surat keterangan dokter / surat tugas / bukti pendukung yang diunggah untuk surat izin ini.'
+                        : 'Belum ada berkas scan surat / dokumen lampiran yang diunggah untuk surat ini.'}
                     </div>
                   )}
 
                   {/* Upload new or replacement */}
                   <div className="space-y-2 pt-2 border-t border-slate-100">
                     <label className="block font-semibold text-slate-800 text-xs">
-                      {uploadModalState.surat.berkasLampiran ? 'Unggah Berkas Baru / Ganti Berkas:' : 'Pilih Berkas Scan / Lampiran:'}
+                      {uploadModalState.surat.berkasLampiran
+                        ? 'Unggah Berkas Baru / Ganti Berkas:'
+                        : uploadModalState.type === 'izin'
+                        ? 'Pilih Berkas Bukti / Surat Keterangan:'
+                        : 'Pilih Berkas Scan / Lampiran:'}
                     </label>
                     <input
                       type="file"
