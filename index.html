@@ -95,6 +95,8 @@
         namaTataUsaha: 'Imam Arifin',
         nipTataUsaha: '198805122020 12 1 004',
         kotaSurat: 'Tulang Bawang Barat',
+        logoSekolah: '',
+        logoPemda: '',
       };
 
       const initialSuratMasuk = [
@@ -355,19 +357,23 @@
         return (
           <div className={`relative w-full text-center select-none ${className}`}>
             <div className="flex items-center justify-between gap-4 pb-2">
-              {/* Left Logo: Motif Lambang Daerah Tubaba */}
+              {/* Left Logo: Motif Lambang Daerah Tubaba / Logo Pemda */}
               <div className="flex-shrink-0 flex items-center justify-center">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center p-1">
-                  <svg viewBox="0 0 100 110" className="w-full h-full text-slate-800" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 5 L88 20 V65 C88 88 50 105 50 105 C50 105 12 88 12 65 V20 Z" fill="#0284C7" stroke="#0F172A" strokeWidth="2.5" />
-                    <path d="M50 10 L83 23 V63 C83 83 50 99 50 99 C50 99 17 83 17 63 V23 Z" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
-                    <path d="M25 45 C30 35 38 28 50 24 C62 28 70 35 75 45 L70 47 C65 38 58 33 50 31 C42 33 35 38 30 47 Z" fill="#EAB308" stroke="#CA8A04" strokeWidth="1" />
-                    <rect x="47" y="44" width="6" height="34" rx="1" fill="#DC2626" />
-                    <circle cx="50" cy="38" r="4" fill="#F59E0B" />
-                    <path d="M35 78 Q50 68 65 78" stroke="#0284C7" strokeWidth="3" fill="none" strokeLinecap="round" />
-                    <rect x="26" y="85" width="48" height="10" rx="2" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1" />
-                    <text x="50" y="92.5" textAnchor="middle" fontSize="6.5" fontWeight="bold" fill="#713F12" fontFamily="sans-serif">TUBABA</text>
-                  </svg>
+                  {profile.logoPemda ? (
+                    <img src={profile.logoPemda} alt="Logo Pemda" className="max-w-full max-h-full object-contain" />
+                  ) : (
+                    <svg viewBox="0 0 100 110" className="w-full h-full text-slate-800" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M50 5 L88 20 V65 C88 88 50 105 50 105 C50 105 12 88 12 65 V20 Z" fill="#0284C7" stroke="#0F172A" strokeWidth="2.5" />
+                      <path d="M50 10 L83 23 V63 C83 83 50 99 50 99 C50 99 17 83 17 63 V23 Z" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
+                      <path d="M25 45 C30 35 38 28 50 24 C62 28 70 35 75 45 L70 47 C65 38 58 33 50 31 C42 33 35 38 30 47 Z" fill="#EAB308" stroke="#CA8A04" strokeWidth="1" />
+                      <rect x="47" y="44" width="6" height="34" rx="1" fill="#DC2626" />
+                      <circle cx="50" cy="38" r="4" fill="#F59E0B" />
+                      <path d="M35 78 Q50 68 65 78" stroke="#0284C7" strokeWidth="3" fill="none" strokeLinecap="round" />
+                      <rect x="26" y="85" width="48" height="10" rx="2" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1" />
+                      <text x="50" y="92.5" textAnchor="middle" fontSize="6.5" fontWeight="bold" fill="#713F12" fontFamily="sans-serif">TUBABA</text>
+                    </svg>
+                  )}
                 </div>
               </div>
 
@@ -396,17 +402,21 @@
                 </div>
               </div>
 
-              {/* Right Logo: Tut Wuri Handayani */}
+              {/* Right Logo: Tut Wuri Handayani / Logo Sekolah */}
               <div className="flex-shrink-0 flex items-center justify-center">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center p-1">
-                  <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="50,5 93,36 77,88 23,88 7,36" fill="#0284C7" stroke="#0F172A" strokeWidth="2.5" />
-                    <polygon points="50,11 87,38 73,83 27,83 13,38" fill="#F8FAFC" />
-                    <path d="M50 32 C38 42 24 50 20 66 C28 66 38 60 50 48 C62 60 72 66 80 66 C76 50 62 42 50 32 Z" fill="#EAB308" stroke="#CA8A04" strokeWidth="1" />
-                    <path d="M50 24 C46 30 47 38 50 42 C53 38 54 30 50 24 Z" fill="#EF4444" />
-                    <path d="M30 68 Q50 63 50 78 Q50 63 70 68 L68 76 Q50 71 50 82 Q50 71 32 76 Z" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="0.8" />
-                    <circle cx="50" cy="50" r="3" fill="#DC2626" />
-                  </svg>
+                  {profile.logoSekolah ? (
+                    <img src={profile.logoSekolah} alt="Logo Sekolah" className="max-w-full max-h-full object-contain" />
+                  ) : (
+                    <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <polygon points="50,5 93,36 77,88 23,88 7,36" fill="#0284C7" stroke="#0F172A" strokeWidth="2.5" />
+                      <polygon points="50,11 87,38 73,83 27,83 13,38" fill="#F8FAFC" />
+                      <path d="M50 32 C38 42 24 50 20 66 C28 66 38 60 50 48 C62 60 72 66 80 66 C76 50 62 42 50 32 Z" fill="#EAB308" stroke="#CA8A04" strokeWidth="1" />
+                      <path d="M50 24 C46 30 47 38 50 42 C53 38 54 30 50 24 Z" fill="#EF4444" />
+                      <path d="M30 68 Q50 63 50 78 Q50 63 70 68 L68 76 Q50 71 50 82 Q50 71 32 76 Z" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="0.8" />
+                      <circle cx="50" cy="50" r="3" fill="#DC2626" />
+                    </svg>
+                  )}
                 </div>
               </div>
             </div>
@@ -677,6 +687,36 @@
             tingkat: 'urgent',
           };
           setNotifikasiList([newNotif, ...notifikasiList]);
+        };
+
+        // Logo Upload Handlers for School Profile
+        const handleLogoUpload = (file, type) => {
+          if (!file || !file.type.startsWith('image/')) {
+            alert('Harap pilih file gambar (PNG, JPG, SVG, atau WEBP).');
+            return;
+          }
+          if (file.size > 3 * 1024 * 1024) {
+            alert('Ukuran file gambar maksimal 3 MB.');
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result;
+            if (type === 'pemda') {
+              setProfile(prev => ({ ...prev, logoPemda: result }));
+            } else {
+              setProfile(prev => ({ ...prev, logoSekolah: result }));
+            }
+          };
+          reader.readAsDataURL(file);
+        };
+
+        const handleRemoveLogo = (type) => {
+          if (type === 'pemda') {
+            setProfile(prev => ({ ...prev, logoPemda: '' }));
+          } else {
+            setProfile(prev => ({ ...prev, logoSekolah: '' }));
+          }
         };
 
         return (
@@ -1289,6 +1329,185 @@
                       <h3 className="font-bold text-xs text-slate-500 uppercase mb-3">Pratinjau Kop Surat Resmi:</h3>
                       <div className="p-4 border border-slate-200 rounded-lg bg-slate-50/50">
                         <KopSurat profile={profile} />
+                      </div>
+                    </div>
+
+                    {/* MENU UPLOAD LOGO SEKOLAH & LOGO PEMDA */}
+                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
+                        <div>
+                          <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                            Upload Logo Resmi Kop Surat (Pemda & Sekolah)
+                          </h3>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Sesuaikan logo instansi Pemerintah Daerah (kiri) dan logo Sekolah / Tut Wuri Handayani (kanan)
+                          </p>
+                        </div>
+                        <span className="text-[10px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-semibold border border-blue-200 w-fit">
+                          Format: PNG / JPG / SVG (Maks. 3 MB)
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                        {/* 1. Upload Logo Pemda (Kiri Kop) */}
+                        <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/60 flex flex-col justify-between space-y-3">
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="font-bold text-slate-900">1. Logo Pemda (Sisi Kiri Kop)</span>
+                              {profile.logoPemda ? (
+                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                                  Kustom Aktif
+                                </span>
+                              ) : (
+                                <span className="text-[10px] bg-slate-200 text-slate-700 font-medium px-2 py-0.5 rounded-full">
+                                  Default Tubaba
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 mb-3">
+                              Lambang resmi Pemkab Tulang Bawang Barat / Pemda terkait yang tercetak di sisi kiri atas kop.
+                            </p>
+
+                            {/* Preview Kotak Logo Pemda */}
+                            <div className="w-full h-32 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center p-3">
+                              {profile.logoPemda ? (
+                                <img
+                                  src={profile.logoPemda}
+                                  alt="Logo Pemda"
+                                  className="max-h-full max-w-full object-contain"
+                                />
+                              ) : (
+                                <div className="w-20 h-20">
+                                  <svg viewBox="0 0 100 110" className="w-full h-full text-slate-800" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M50 5 L88 20 V65 C88 88 50 105 50 105 C50 105 12 88 12 65 V20 Z" fill="#0284C7" stroke="#0F172A" strokeWidth="2.5" />
+                                    <path d="M50 10 L83 23 V63 C83 83 50 99 50 99 C50 99 17 83 17 63 V23 Z" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
+                                    <path d="M25 45 C30 35 38 28 50 24 C62 28 70 35 75 45 L70 47 C65 38 58 33 50 31 C42 33 35 38 30 47 Z" fill="#EAB308" stroke="#CA8A04" strokeWidth="1" />
+                                    <rect x="47" y="44" width="6" height="34" rx="1" fill="#DC2626" />
+                                    <circle cx="50" cy="38" r="4" fill="#F59E0B" />
+                                    <path d="M35 78 Q50 68 65 78" stroke="#0284C7" strokeWidth="3" fill="none" strokeLinecap="round" />
+                                    <rect x="26" y="85" width="48" height="10" rx="2" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1" />
+                                    <text x="50" y="92.5" textAnchor="middle" fontSize="6.5" fontWeight="bold" fill="#713F12" fontFamily="sans-serif">TUBABA</text>
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
+                            <input
+                              id="upload-logo-pemda"
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleLogoUpload(e.target.files[0], 'pemda');
+                                  e.target.value = '';
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById('upload-logo-pemda').click()}
+                              className="flex-1 py-2 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                            >
+                              <span>{profile.logoPemda ? 'Ganti Logo Pemda' : 'Upload Logo Pemda'}</span>
+                            </button>
+                            {profile.logoPemda && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveLogo('pemda')}
+                                className="py-2 px-3 bg-white hover:bg-red-50 text-red-600 border border-slate-300 rounded-lg text-xs font-semibold transition-colors"
+                                title="Kembalikan ke motif logo default"
+                              >
+                                Reset
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 2. Upload Logo Sekolah (Kanan Kop) */}
+                        <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/60 flex flex-col justify-between space-y-3">
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="font-bold text-slate-900">2. Logo Sekolah (Sisi Kanan Kop)</span>
+                              {profile.logoSekolah ? (
+                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                                  Kustom Aktif
+                                </span>
+                              ) : (
+                                <span className="text-[10px] bg-slate-200 text-slate-700 font-medium px-2 py-0.5 rounded-full">
+                                  Default Tut Wuri
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 mb-3">
+                              Logo khusus SMPN 14 Tubaba atau lambang Tut Wuri Handayani di sisi kanan atas kop.
+                            </p>
+
+                            {/* Preview Kotak Logo Sekolah */}
+                            <div className="w-full h-32 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center p-3">
+                              {profile.logoSekolah ? (
+                                <img
+                                  src={profile.logoSekolah}
+                                  alt="Logo Sekolah"
+                                  className="max-h-full max-w-full object-contain"
+                                />
+                              ) : (
+                                <div className="w-20 h-20">
+                                  <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <polygon points="50,5 93,36 77,88 23,88 7,36" fill="#0284C7" stroke="#0F172A" strokeWidth="2.5" />
+                                    <polygon points="50,11 87,38 73,83 27,83 13,38" fill="#F8FAFC" />
+                                    <path d="M50 32 C38 42 24 50 20 66 C28 66 38 60 50 48 C62 60 72 66 80 66 C76 50 62 42 50 32 Z" fill="#EAB308" stroke="#CA8A04" strokeWidth="1" />
+                                    <path d="M50 24 C46 30 47 38 50 42 C53 38 54 30 50 24 Z" fill="#EF4444" />
+                                    <path d="M30 68 Q50 63 50 78 Q50 63 70 68 L68 76 Q50 71 50 82 Q50 71 32 76 Z" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="0.8" />
+                                    <circle cx="50" cy="50" r="3" fill="#DC2626" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
+                            <input
+                              id="upload-logo-sekolah"
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleLogoUpload(e.target.files[0], 'sekolah');
+                                  e.target.value = '';
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById('upload-logo-sekolah').click()}
+                              className="flex-1 py-2 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                            >
+                              <span>{profile.logoSekolah ? 'Ganti Logo Sekolah' : 'Upload Logo Sekolah'}</span>
+                            </button>
+                            {profile.logoSekolah && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveLogo('sekolah')}
+                                className="py-2 px-3 bg-white hover:bg-red-50 text-red-600 border border-slate-300 rounded-lg text-xs font-semibold transition-colors"
+                                title="Kembalikan ke motif logo default"
+                              >
+                                Reset
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50/70 border border-blue-200/80 rounded-lg p-3 text-[11px] text-blue-900 flex items-start gap-2">
+                        <span className="font-bold text-blue-700 mt-0.5">ℹ️</span>
+                        <p>
+                          <strong>Informasi:</strong> Logo yang diunggah akan otomatis tersimpan di memori lokal (localStorage) browser dan langsung digunakan di seluruh kop surat resmi pada Cetak Surat Keluar, Lembar Disposisi, Surat Keterangan / Izin Siswa, dan Rekapitulasi Laporan Bulanan.
+                        </p>
                       </div>
                     </div>
 
